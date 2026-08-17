@@ -7,6 +7,7 @@ Todas as alterações relevantes serão registradas neste arquivo. O projeto seg
 ### Adicionado
 
 - Capa demonstrativa com dados fictícios para o portfólio.
+- Identidade visual aplicada ao ícone, splash, favicon e imagem social do GitHub.
 - Documentação de arquitetura, privacidade, segurança e contribuição.
 - Roadmap priorizado por risco.
 - Testes unitários das regras de medicamentos recorrentes.

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-labelledby="title">
+  <title id="title">Foreground adaptativo do Laço</title>
+  <rect x="212" y="212" width="600" height="600" rx="190" fill="#123B35"/>
+  <path d="M512 655C457 612 372 563 372 470c0-65 50-109 108-109 35 0 64 17 82 43 18-26 47-43 82-43 58 0 108 44 108 109 0 93-85 142-140 185l-50 39-50-39z" fill="#FFFFFF"/>
+  <path d="M378 635c-45 6-81-9-92-43-14-40 15-77 60-84" fill="none" stroke="#36A67C" stroke-width="30" stroke-linecap="round"/>
+  <path d="M646 635c45 6 81-9 92-43 14-40-15-77-60-84" fill="none" stroke="#36A67C" stroke-width="30" stroke-linecap="round"/>
+</svg>

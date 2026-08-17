@@ -5,7 +5,7 @@
 ![Supabase com RLS](https://img.shields.io/badge/Supabase-RLS-3FCF8E?style=flat-square&logo=supabase&logoColor=white)
 ![Licença MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-123B35?style=flat-square)
 
-![Capa do Laço com telas demonstrativas e dados fictícios](docs/assets/laco-cover.svg)
+![Capa do Laço com telas demonstrativas e dados fictícios](docs/assets/laco-cover.png)
 
 Aplicativo mobile para famílias organizarem consultas, exames, medicamentos, hidratação e memórias em um único espaço compartilhado. O Laço nasceu de uma necessidade real: reduzir esquecimentos e tornar o cuidado cotidiano mais leve, colaborativo e humano.
 

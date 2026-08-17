@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024" role="img" aria-labelledby="title description">
+  <title id="title">Ícone do Laço</title>
+  <desc id="description">Coração branco envolvido por um laço verde sobre fundo verde escuro.</desc>
+  <rect width="1024" height="1024" fill="#123B35"/>
+  <path d="M512 747C422 676 282 596 282 443c0-107 82-179 177-179 58 0 105 27 135 70 30-43 77-70 135-70 95 0 177 72 177 179 0 153-140 233-230 304l-82 64-82-64z" fill="#FFFFFF"/>
+  <path d="M293 713c-73 10-132-15-151-71-22-65 25-126 99-138" fill="none" stroke="#36A67C" stroke-width="48" stroke-linecap="round"/>
+  <path d="M731 713c73 10 132-15 151-71 22-65-25-126-99-138" fill="none" stroke="#36A67C" stroke-width="48" stroke-linecap="round"/>
+</svg>

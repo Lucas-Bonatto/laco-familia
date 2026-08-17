@@ -6,9 +6,16 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "scheme": "laco",
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#F7F3EC"
+    },
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.portfolio.lacofamilia",
+      "icon": "./assets/icon.png",
       "infoPlist": {
         "NSPhotoLibraryUsageDescription": "O Laço usa suas fotos para guardar os momentos especiais da família."
       }
@@ -16,11 +23,15 @@
     "android": {
       "package": "com.portfolio.lacofamilia",
       "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#F7F3EC"
       },
       "permissions": [
         "android.permission.POST_NOTIFICATIONS"
       ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
     },
     "plugins": [
       [
