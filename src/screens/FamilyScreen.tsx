@@ -1,0 +1,41 @@
+import { Alert, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { AnimatedPressable } from '../components/AnimatedPressable';
+import { Avatar } from '../components/ui';
+import { useApp } from '../state/AppContext';
+import { friendlyCloudError } from '../services/cloud';
+import { colors, radii, shadows } from '../theme';
+
+export function FamilyScreen() {
+  const { familyName, inviteCode, members, events, activeMemberId, setActiveMemberId, waterTotalFor, syncStatus, refresh, signOut } = useApp();
+  const synced = syncStatus === 'synced';
+  const shareInvite = async () => {
+    await Share.share({
+      title: `Convite para ${familyName}`,
+      message: `Venha cuidar da família comigo no Laço 💚\n\nCódigo do nosso grupo: ${inviteCode}\n\nCrie seu acesso no app e escolha “Usar convite”.`,
+    });
+  };
+  return <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+    <View style={styles.header}><View><Text style={styles.title}>{familyName}</Text><Text style={styles.subtitle}>Cuidado compartilhado fica bem mais leve.</Text></View><View style={styles.peopleIcon}><Ionicons name="people" size={24} color={colors.mintStrong} /></View></View>
+    <AnimatedPressable onPress={() => void refresh().catch((error) => Alert.alert('Não foi possível atualizar', friendlyCloudError(error)))} style={styles.syncCard}><View style={[styles.syncDot, { backgroundColor: synced ? colors.mintStrong : syncStatus === 'syncing' ? '#E1A52C' : colors.coral }]} /><View style={styles.syncBody}><Text style={styles.syncTitle}>{synced ? 'Família sincronizada' : syncStatus === 'syncing' ? 'Atualizando os cuidados…' : 'Conexão instável'}</Text><Text style={styles.syncText}>{synced ? 'As mudanças aparecem nos celulares de todos.' : 'Toque aqui para tentar sincronizar novamente.'}</Text></View><Ionicons name={synced ? 'cloud-done-outline' : 'refresh-outline'} size={23} color={colors.muted} /></AnimatedPressable>
+    <View style={styles.inviteCard}><View style={styles.inviteTop}><View><Text style={styles.inviteEyebrow}>CÓDIGO DA FAMÍLIA</Text><Text style={styles.inviteCode}>{inviteCode}</Text></View><Text style={styles.inviteEmoji}>🏡</Text></View><Text style={styles.inviteText}>Envie o código somente para quem deve participar dos cuidados e ver as memórias da família.</Text><AnimatedPressable onPress={() => void shareInvite().catch(() => undefined)} style={styles.inviteButton}><Ionicons name="share-social-outline" size={18} color={colors.ink} /><Text style={styles.inviteButtonText}>Convidar alguém</Text></AnimatedPressable></View>
+    <View><Text style={styles.sectionTitle}>Quem está no Laço</Text><View style={styles.memberList}>{members.map((member) => {
+      const total = waterTotalFor(member.id); const nextEvent = [...events].filter((event) => event.memberId === member.id && new Date(event.startsAt).getTime() > Date.now()).sort((a, b) => a.startsAt.localeCompare(b.startsAt))[0]; const selected = member.id === activeMemberId;
+      return <AnimatedPressable key={member.id} onPress={() => setActiveMemberId(member.id)} style={[styles.memberCard, selected && styles.memberCardSelected]}>
+        <Avatar member={member} size={51} /><View style={styles.memberBody}><View style={styles.memberTitleRow}><Text style={styles.memberName}>{member.name}</Text><Text style={styles.memberRole}>{member.role}</Text></View><View style={styles.memberStats}><View style={styles.stat}><Ionicons name="water-outline" size={15} color={colors.blueStrong} /><Text style={styles.statText}>{total.toLocaleString('pt-BR')} ml hoje</Text></View><View style={styles.stat}><Ionicons name="calendar-outline" size={15} color={colors.coral} /><Text numberOfLines={1} style={styles.statText}>{nextEvent ? new Date(nextEvent.startsAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }) : 'sem compromissos'}</Text></View></View></View>
+        {selected ? <View style={styles.selectedBadge}><Ionicons name="checkmark" size={15} color={colors.surface} /></View> : <Ionicons name="chevron-forward" size={20} color="#B8C1BD" />}
+      </AnimatedPressable>;
+    })}</View></View>
+    <View style={styles.privacyCard}><View style={styles.privacyIcon}><Ionicons name="shield-checkmark-outline" size={24} color="#6557BC" /></View><View style={{ flex: 1 }}><Text style={styles.privacyTitle}>Privacidade é cuidado também</Text><Text style={styles.privacyText}>Só integrantes convidados devem acessar consultas, hidratação e memórias do grupo.</Text></View></View>
+    <AnimatedPressable onPress={() => void signOut().catch((error) => Alert.alert('Não foi possível sair', friendlyCloudError(error)))} style={styles.signOutButton}><Ionicons name="log-out-outline" size={17} color={colors.muted} /><Text style={styles.signOutText}>Sair desta conta</Text></AnimatedPressable>
+  </ScrollView>;
+}
+
+const styles = StyleSheet.create({
+  content: { paddingHorizontal: 20, paddingTop: 18, paddingBottom: 125, gap: 22 }, header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }, title: { color: colors.ink, fontSize: 29, fontWeight: '900', letterSpacing: -0.7 }, subtitle: { color: colors.muted, fontSize: 14, marginTop: 4 }, peopleIcon: { width: 48, height: 48, borderRadius: 17, backgroundColor: colors.mint, alignItems: 'center', justifyContent: 'center' },
+  syncCard: { flexDirection: 'row', alignItems: 'center', gap: 10, padding: 13, borderRadius: radii.md, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.line }, syncDot: { width: 9, height: 9, borderRadius: 5 }, syncBody: { flex: 1 }, syncTitle: { color: colors.ink, fontSize: 13, fontWeight: '900' }, syncText: { color: colors.muted, fontSize: 11, lineHeight: 15, marginTop: 2 },
+  inviteCard: { borderRadius: radii.lg, backgroundColor: colors.ink, padding: 20, overflow: 'hidden', ...shadows.card }, inviteTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }, inviteEyebrow: { color: colors.mint, fontSize: 10, fontWeight: '900', letterSpacing: 1.2 }, inviteCode: { maxWidth: 250, color: colors.surface, fontSize: 30, fontWeight: '900', letterSpacing: 2.2, marginTop: 5 }, inviteEmoji: { fontSize: 43 }, inviteText: { maxWidth: 300, color: '#C9D7D2', fontSize: 13, lineHeight: 18, marginTop: 8 }, inviteButton: { alignSelf: 'flex-start', minHeight: 43, marginTop: 16, paddingHorizontal: 14, borderRadius: 13, backgroundColor: colors.mint, flexDirection: 'row', alignItems: 'center', gap: 7 }, inviteButtonText: { color: colors.ink, fontSize: 12, fontWeight: '900' },
+  sectionTitle: { color: colors.ink, fontSize: 20, fontWeight: '900', marginBottom: 12 }, memberList: { gap: 10 }, memberCard: { flexDirection: 'row', alignItems: 'center', gap: 12, padding: 14, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.line, borderRadius: radii.md, ...shadows.card }, memberCardSelected: { borderColor: colors.mintStrong, backgroundColor: '#F3FCF8' }, memberBody: { flex: 1 }, memberTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 7 }, memberName: { color: colors.ink, fontSize: 16, fontWeight: '900' }, memberRole: { color: colors.muted, fontSize: 10, fontWeight: '800', backgroundColor: '#ECEEEA', borderRadius: radii.pill, paddingHorizontal: 7, paddingVertical: 3 }, memberStats: { flexDirection: 'row', gap: 10, marginTop: 7 }, stat: { flexDirection: 'row', alignItems: 'center', gap: 3 }, statText: { maxWidth: 105, color: colors.muted, fontSize: 11, fontWeight: '700' }, selectedBadge: { width: 25, height: 25, borderRadius: 13, backgroundColor: colors.mintStrong, alignItems: 'center', justifyContent: 'center' },
+  privacyCard: { flexDirection: 'row', gap: 12, alignItems: 'center', padding: 16, borderRadius: radii.md, backgroundColor: colors.lavender }, privacyIcon: { width: 45, height: 45, borderRadius: 15, backgroundColor: 'rgba(255,255,255,0.62)', alignItems: 'center', justifyContent: 'center' }, privacyTitle: { color: colors.ink, fontSize: 14, fontWeight: '900' }, privacyText: { color: '#665E84', fontSize: 11, lineHeight: 16, marginTop: 3 },
+  signOutButton: { alignSelf: 'center', minHeight: 42, paddingHorizontal: 14, flexDirection: 'row', alignItems: 'center', gap: 6 }, signOutText: { color: colors.muted, fontSize: 12, fontWeight: '800' },
+});

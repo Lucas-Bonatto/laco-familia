@@ -1,0 +1,55 @@
+{
+  "expo": {
+    "name": "Laço",
+    "slug": "laco-familia",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "scheme": "laco",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.portfolio.lacofamilia",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "O Laço usa suas fotos para guardar os momentos especiais da família."
+      }
+    },
+    "android": {
+      "package": "com.portfolio.lacofamilia",
+      "adaptiveIcon": {
+        "backgroundColor": "#F7F3EC"
+      },
+      "permissions": [
+        "android.permission.POST_NOTIFICATIONS"
+      ]
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "defaultChannel": "lembretes"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "O Laço usa suas fotos para guardar os momentos especiais da família.",
+          "microphonePermission": false
+        }
+      ],
+      "@react-native-community/datetimepicker",
+      "expo-font"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "6184b4b7-9662-4232-99d5-a165098377ab"
+      }
+    },
+    "owner": "lucas-bonatto",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/6184b4b7-9662-4232-99d5-a165098377ab"
+    }
+  }
+}
