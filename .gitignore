@@ -1,9 +1,11 @@
 node_modules/
 .expo/
 .expo-export-check/
+.expo-export-check-ios/
 .test-dist/
 dist/
 web-build/
+docs/assets/screenshots/
 .env
 .env.local
 *.jks

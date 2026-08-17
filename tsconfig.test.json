@@ -11,6 +11,7 @@
     "sourceMap": false
   },
   "include": [
-    "src/utils/medication.ts"
+    "src/utils/medication.ts",
+    "src/utils/notifications.ts"
   ]
 }

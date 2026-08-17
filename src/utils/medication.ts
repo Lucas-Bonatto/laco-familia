@@ -32,10 +32,10 @@ export function timeParts(time: string, fallbackDate?: string) {
   return { hour: fallback.getHours(), minute: fallback.getMinutes() };
 }
 
-export function nextDailyOccurrence(time: string, fallbackDate?: string) {
+export function nextDailyOccurrence(time: string, fallbackDate?: string, referenceDate = new Date()) {
   const { hour, minute } = timeParts(time, fallbackDate);
-  const next = new Date();
+  const next = new Date(referenceDate);
   next.setHours(hour, minute, 0, 0);
-  if (next.getTime() <= Date.now()) next.setDate(next.getDate() + 1);
+  if (next.getTime() <= referenceDate.getTime()) next.setDate(next.getDate() + 1);
   return next;
 }

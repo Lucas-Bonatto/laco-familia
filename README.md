@@ -15,6 +15,12 @@ Aplicativo mobile para famílias organizarem consultas, exames, medicamentos, hi
 
 O Laço reúne agenda médica, tratamentos recorrentes, hidratação e fotografias em uma experiência única para iOS e Android. Cada pessoa possui seu próprio login, entra em uma família por convite e recebe as atualizações compartilhadas pela internet.
 
+### Produto em funcionamento
+
+![Telas reais do Laço mostrando início, agenda, hidratação e memórias](docs/assets/laco-real-screens.png)
+
+Capturas feitas em um iPhone durante os testes do MVP. Telas com código de convite e informações de acesso foram excluídas do material público.
+
 ### Destaques técnicos
 
 - React Native, Expo SDK 54 e TypeScript estrito.
@@ -109,8 +115,8 @@ O MVP ainda possui limitações de produção documentadas no [roadmap](docs/ROA
 ### Instalação
 
 ```bash
-git clone URL_DO_SEU_FORK
-cd laco
+git clone https://github.com/Lucas-Bonatto/laco-familia.git
+cd laco-familia
 pnpm install
 ```
 

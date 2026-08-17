@@ -40,14 +40,21 @@ const kindMeta: Record<EventKind, { icon: keyof typeof Ionicons.glyphMap; backgr
   outro: { icon: 'sparkles-outline', background: colors.yellowSoft, color: '#A07100' },
 };
 
-export function EventCard({ event, member, compact = false }: { event: FamilyEvent; member: FamilyMember; compact?: boolean }) {
+type EventCardProps = {
+  event: FamilyEvent;
+  member: FamilyMember;
+  compact?: boolean;
+  onPress?: () => void;
+};
+
+export function EventCard({ event, member, compact = false, onPress }: EventCardProps) {
   const date = new Date(event.startsAt); const meta = kindMeta[event.kind];
   const day = date.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: 'short' });
   const time = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
   const continuousSchedule = event.medicationSchedule?.mode === 'continuous'
     ? event.medicationSchedule
     : null;
-  return <View style={[styles.eventCard, compact && styles.eventCardCompact]}>
+  const content = <>
     <View style={[styles.eventIcon, { backgroundColor: meta.background }]}><Ionicons name={meta.icon} color={meta.color} size={24} /></View>
     <View style={styles.eventBody}>
       <View style={styles.eventTopline}><Text numberOfLines={1} style={styles.eventTitle}>{event.title}</Text><View style={[styles.miniDot, { backgroundColor: member.color }]} /></View>
@@ -55,8 +62,20 @@ export function EventCard({ event, member, compact = false }: { event: FamilyEve
       {event.location && !compact ? <View style={styles.eventLocationRow}><Ionicons name="location-outline" size={14} color={colors.muted} /><Text numberOfLines={1} style={styles.eventLocation}>{event.location}</Text></View> : null}
       {event.medicationSchedule && !compact ? <View style={styles.treatmentRow}><Ionicons name={event.medicationSchedule.mode === 'continuous' ? 'infinite-outline' : 'repeat-outline'} size={14} color="#6357B6" /><Text numberOfLines={1} style={styles.treatmentText}>{event.medicationSchedule.mode === 'continuous' ? `Tratamento contínuo • todos os dias às ${event.medicationSchedule.time}` : `${event.medicationSchedule.durationDays} dias • a cada ${event.medicationSchedule.intervalHours}h • ${event.medicationSchedule.totalDoses} doses`}</Text></View> : null}
     </View>
-    <Ionicons name="chevron-forward" size={20} color="#B7C1BD" />
-  </View>;
+    {onPress ? <Ionicons name="chevron-forward" size={20} color="#B7C1BD" /> : null}
+  </>;
+
+  if (onPress) {
+    return <AnimatedPressable
+      onPress={onPress}
+      accessibilityLabel={`Abrir detalhes de ${event.title}`}
+      style={[styles.eventCard, compact && styles.eventCardCompact]}
+    >
+      {content}
+    </AnimatedPressable>;
+  }
+
+  return <View style={[styles.eventCard, compact && styles.eventCardCompact]}>{content}</View>;
 }
 
 const styles = StyleSheet.create({

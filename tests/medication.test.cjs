@@ -5,6 +5,7 @@ const {
   MAX_MEDICATION_DOSES,
   calculateMedicationDoses,
   medicationScheduleError,
+  nextDailyOccurrence,
   timeParts,
 } = require('../.test-dist/utils/medication.js');
 
@@ -54,4 +55,24 @@ test('usa a data de fallback quando o horário é inválido', () => {
   const fallback = new Date(2026, 7, 17, 14, 35).toISOString();
 
   assert.deepEqual(timeParts('25:99', fallback), { hour: 14, minute: 35 });
+});
+
+test('agenda o tratamento contínuo para hoje quando o horário ainda não passou', () => {
+  const reference = new Date(2026, 7, 17, 9, 0, 0, 0);
+  const next = nextDailyOccurrence('14:30', undefined, reference);
+
+  assert.equal(next.getFullYear(), 2026);
+  assert.equal(next.getMonth(), 7);
+  assert.equal(next.getDate(), 17);
+  assert.equal(next.getHours(), 14);
+  assert.equal(next.getMinutes(), 30);
+});
+
+test('agenda o tratamento contínuo para o dia seguinte quando o horário já passou', () => {
+  const reference = new Date(2026, 7, 17, 18, 0, 0, 0);
+  const next = nextDailyOccurrence('14:30', undefined, reference);
+
+  assert.equal(next.getDate(), 18);
+  assert.equal(next.getHours(), 14);
+  assert.equal(next.getMinutes(), 30);
 });
