@@ -3,6 +3,7 @@ import { Alert, KeyboardAvoidingView, Modal, Platform, ScrollView, StyleSheet, T
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Ionicons } from '@expo/vector-icons';
 import { AnimatedPressable } from '../components/AnimatedPressable';
+import { EventDetailsModal } from '../components/EventDetailsModal';
 import { EventCard, MemberPicker } from '../components/ui';
 import { useApp } from '../state/AppContext';
 import { colors, radii, shadows } from '../theme';
@@ -24,6 +25,7 @@ const intervalOptions = [4, 6, 8, 12, 24];
 export function AgendaScreen() {
   const { events, members, removeEvent } = useApp(); const [filter, setFilter] = useState<Filter>('todos');
   const [modalVisible, setModalVisible] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<FamilyEvent | null>(null);
   const visibleEvents = useMemo(() => [...events]
     .filter((event) => filter === 'todos' || event.kind === filter)
     .sort((a, b) => a.startsAt.localeCompare(b.startsAt)), [events, filter]);
@@ -49,13 +51,18 @@ export function AgendaScreen() {
       <View style={styles.list}>{visibleEvents.length ? visibleEvents.map((event) => {
         const member = members.find((item) => item.id === event.memberId) ?? members[0];
         return member ? <View key={event.id} style={styles.eventEntry}>
-          <EventCard event={event} member={member} />
+          <EventCard event={event} member={member} onPress={() => setSelectedEvent(event)} />
           {event.medicationSchedule?.mode === 'continuous' ? <AnimatedPressable onPress={() => confirmStopTreatment(event)} style={styles.stopTreatmentButton}><Ionicons name="stop-circle-outline" size={17} color="#8F4035" /><Text style={styles.stopTreatmentText}>Encerrar tratamento</Text></AnimatedPressable> : null}
         </View> : null;
       }) : <View style={styles.empty}><Text style={styles.emptyEmoji}>🗓️</Text><Text style={styles.emptyTitle}>Nada marcado</Text><Text style={styles.emptyText}>Essa parte da agenda está respirando aliviada.</Text></View>}</View>
     </ScrollView>
     <AnimatedPressable onPress={() => setModalVisible(true)} accessibilityLabel="Adicionar evento" style={styles.fab}><Ionicons name="add" size={30} color={colors.surface} /></AnimatedPressable>
     <NewEventModal visible={modalVisible} onClose={() => setModalVisible(false)} />
+    <EventDetailsModal
+      event={selectedEvent}
+      member={selectedEvent ? members.find((item) => item.id === selectedEvent.memberId) ?? null : null}
+      onClose={() => setSelectedEvent(null)}
+    />
   </View>;
 }
 
@@ -79,7 +86,20 @@ function NewEventModal({ visible, onClose }: { visible: boolean; onClose: () => 
     : 0;
 
   const save = async () => {
-    if (!title.trim() || saving || scheduleError) return; setSaving(true);
+    if (saving) return;
+    if (!title.trim()) {
+      Alert.alert('Falta o nome do cuidado', 'Escreva o nome do remédio, da consulta ou do evento antes de salvar.');
+      return;
+    }
+    if (!memberId) {
+      Alert.alert('Escolha alguém', 'Selecione para quem este cuidado será agendado.');
+      return;
+    }
+    if (scheduleError) {
+      Alert.alert('Revise o tratamento', scheduleError);
+      return;
+    }
+    setSaving(true);
     try {
       const selectedTime = `${String(startsAt.getHours()).padStart(2, '0')}:${String(startsAt.getMinutes()).padStart(2, '0')}`;
       const eventDate = kind === 'remedio' && medicationMode === 'continuous'
@@ -148,7 +168,7 @@ function NewEventModal({ visible, onClose }: { visible: boolean; onClose: () => 
           </View> : kind === 'remedio' ? <View style={styles.continuousInfo}><Ionicons name="repeat" size={18} color={colors.mintStrong} /><Text style={styles.continuousInfoText}>Um lembrete será repetido diariamente no horário escolhido, até você encerrar o tratamento.</Text></View> : null}
           <Text style={styles.label}>Local (opcional)</Text><TextInput value={location} onChangeText={setLocation} placeholder="Clínica, laboratório..." placeholderTextColor="#9AA5A1" style={styles.input} />
           <Text style={styles.label}>Observação (opcional)</Text><TextInput value={notes} onChangeText={setNotes} placeholder="Jejum, documentos, preparo..." placeholderTextColor="#9AA5A1" style={[styles.input, styles.notesInput]} multiline />
-          <AnimatedPressable onPress={() => void save()} disabled={!title.trim() || saving || Boolean(scheduleError)} style={styles.saveButton}><Ionicons name="sparkles" size={18} color={colors.surface} /><Text style={styles.saveButtonText}>{saving ? 'Agendando...' : kind === 'remedio' ? 'Criar tratamento e lembretes' : 'Agendar e lembrar'}</Text></AnimatedPressable>
+          <AnimatedPressable onPress={() => void save()} disabled={saving} style={styles.saveButton}><Ionicons name="sparkles" size={18} color={colors.surface} /><Text style={styles.saveButtonText}>{saving ? 'Agendando...' : kind === 'remedio' && medicationMode === 'continuous' ? 'Salvar tratamento contínuo' : kind === 'remedio' ? 'Criar tratamento e lembretes' : 'Agendar e lembrar'}</Text></AnimatedPressable>
         </ScrollView>
       </View>
     </KeyboardAvoidingView>

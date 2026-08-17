@@ -17,7 +17,8 @@
       "bundleIdentifier": "com.portfolio.lacofamilia",
       "icon": "./assets/icon.png",
       "infoPlist": {
-        "NSPhotoLibraryUsageDescription": "O Laço usa suas fotos para guardar os momentos especiais da família."
+        "NSPhotoLibraryUsageDescription": "O Laço usa suas fotos para guardar os momentos especiais da família.",
+        "NSCameraUsageDescription": "O Laço usa a câmera para registrar os momentos especiais da família."
       }
     },
     "android": {
@@ -44,6 +45,7 @@
         "expo-image-picker",
         {
           "photosPermission": "O Laço usa suas fotos para guardar os momentos especiais da família.",
+          "cameraPermission": "O Laço usa a câmera para registrar os momentos especiais da família.",
           "microphonePermission": false
         }
       ],

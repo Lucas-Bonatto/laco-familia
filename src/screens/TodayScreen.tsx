@@ -1,14 +1,17 @@
+import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { AnimatedPressable } from '../components/AnimatedPressable';
+import { EventDetailsModal } from '../components/EventDetailsModal';
 import { Avatar, EventCard, SectionHeader } from '../components/ui';
 import { useApp } from '../state/AppContext';
 import { colors, radii, shadows } from '../theme';
-import type { TabKey } from '../types';
+import type { FamilyEvent, TabKey } from '../types';
 import { nextDailyOccurrence } from '../utils/medication';
 
 export function TodayScreen({ onNavigate }: { onNavigate: (tab: TabKey) => void }) {
   const { members, activeMemberId, events, waterTotalFor } = useApp();
+  const [selectedEvent, setSelectedEvent] = useState<FamilyEvent | null>(null);
   const active = members.find((member) => member.id === activeMemberId) ?? members[0];
   if (!active) return null;
   const total = waterTotalFor(active.id);
@@ -25,7 +28,7 @@ export function TodayScreen({ onNavigate }: { onNavigate: (tab: TabKey) => void 
       return aTime - bTime;
     }).slice(0, 2);
 
-  return <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+  return <><ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
     <View style={styles.header}>
       <View><Text style={styles.eyebrow}>QUINTAL DA FAMÍLIA</Text><Text style={styles.greeting}>Oi, {active.name}! 👋</Text><Text style={styles.subtitle}>Vamos cuidar de quem a gente ama?</Text></View>
       <Avatar member={active} size={48} />
@@ -52,7 +55,7 @@ export function TodayScreen({ onNavigate }: { onNavigate: (tab: TabKey) => void 
       <SectionHeader title="Próximos cuidados" action="Ver agenda" onAction={() => onNavigate('agenda')} />
       <View style={styles.eventList}>{upcoming.length ? upcoming.map((event) => {
         const member = members.find((item) => item.id === event.memberId) ?? active;
-        return <EventCard key={event.id} event={event} member={member} />;
+        return <EventCard key={event.id} event={event} member={member} onPress={() => setSelectedEvent(event)} />;
       }) : <View style={styles.emptyCard}><Text style={styles.emptyEmoji}>🌤️</Text><View style={{ flex: 1 }}><Text style={styles.emptyTitle}>Agenda tranquila por aqui</Text><Text style={styles.emptyText}>Uma raridade. Aproveite sem culpa!</Text></View></View>}</View>
     </View>
 
@@ -63,7 +66,13 @@ export function TodayScreen({ onNavigate }: { onNavigate: (tab: TabKey) => void 
         <AnimatedPressable onPress={() => onNavigate('family')} containerStyle={styles.shortcutSlot} style={[styles.shortcut, styles.shortcutMint]}><View style={styles.shortcutIcon}><Ionicons name="people-outline" size={23} color={colors.mintStrong} /></View><Text style={styles.shortcutTitle}>Ver{`\n`}família</Text></AnimatedPressable>
       </View>
     </View>
-  </ScrollView>;
+  </ScrollView>
+    <EventDetailsModal
+      event={selectedEvent}
+      member={selectedEvent ? members.find((item) => item.id === selectedEvent.memberId) ?? null : null}
+      onClose={() => setSelectedEvent(null)}
+    />
+  </>;
 }
 
 const styles = StyleSheet.create({

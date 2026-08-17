@@ -26,7 +26,11 @@ const tabs: { key: TabKey; label: string; icon: keyof typeof Ionicons.glyphMap; 
 function LacoApp() {
   const { authReady, hydrated, session, familyId, members } = useApp(); const [activeTab, setActiveTab] = useState<TabKey>('today');
   const opacity = useRef(new Animated.Value(1)).current; const translateY = useRef(new Animated.Value(0)).current;
-  useEffect(() => { if (!hydrated || !session || members.length === 0) return; void scheduleDailyWaterReminders().catch(() => undefined); return listenForNotificationNavigation((screen) => setActiveTab(screen)); }, [hydrated, session?.user.id, members.length]);
+  useEffect(() => {
+    if (!hydrated || !session?.user.id || !familyId) return;
+    void scheduleDailyWaterReminders().catch(() => undefined);
+  }, [hydrated, session?.user.id, familyId]);
+  useEffect(() => listenForNotificationNavigation((screen) => setActiveTab(screen)), []);
   const navigate = (tab: TabKey) => { if (tab === activeTab) return; opacity.setValue(0.25); translateY.setValue(8); setActiveTab(tab); Animated.parallel([Animated.timing(opacity, { toValue: 1, duration: 230, useNativeDriver: true }), Animated.spring(translateY, { toValue: 0, useNativeDriver: true, speed: 24, bounciness: 3 })]).start(); };
   if (!isSupabaseConfigured) return <SupabaseSetupScreen />;
   if (!authReady) return <SafeAreaView style={styles.safeArea}><View style={styles.loading}><Text style={styles.loadingText}>Abrindo o Laço…</Text></View></SafeAreaView>;

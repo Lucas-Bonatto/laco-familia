@@ -2,6 +2,7 @@ import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import type { FamilyEvent } from '../types';
 import { MAX_MEDICATION_DOSES, timeParts } from '../utils/medication';
+import { collectDailyWaterNotificationIds } from '../utils/notifications';
 import {
   loadEventNotificationMap,
   loadWaterNotificationIds,
@@ -46,13 +47,17 @@ export async function requestNotificationPermission() {
   return next.granted;
 }
 
-export async function scheduleDailyWaterReminders() {
+async function scheduleDailyWaterRemindersOnce() {
   if (Platform.OS === 'web') return [] as string[];
   const permitted = await requestNotificationPermission();
   if (!permitted) return [] as string[];
 
-  const previousIds = await loadWaterNotificationIds();
-  await Promise.all(previousIds.map((id) =>
+  const [previousIds, scheduledNotifications] = await Promise.all([
+    loadWaterNotificationIds(),
+    Notifications.getAllScheduledNotificationsAsync(),
+  ]);
+  const idsToCancel = collectDailyWaterNotificationIds(previousIds, scheduledNotifications);
+  await Promise.all(idsToCancel.map((id) =>
     Notifications.cancelScheduledNotificationAsync(id).catch(() => undefined),
   ));
 
@@ -75,6 +80,18 @@ export async function scheduleDailyWaterReminders() {
   }
   await saveWaterNotificationIds(ids);
   return ids;
+}
+
+let waterReminderSetup: Promise<string[]> | null = null;
+
+export function scheduleDailyWaterReminders() {
+  if (waterReminderSetup) return waterReminderSetup;
+
+  const setup = scheduleDailyWaterRemindersOnce().finally(() => {
+    if (waterReminderSetup === setup) waterReminderSetup = null;
+  });
+  waterReminderSetup = setup;
+  return setup;
 }
 
 function eventCopy(event: FamilyEvent) {
