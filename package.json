@@ -2,6 +2,10 @@
   "name": "laco-family-app",
   "version": "1.0.0",
   "private": true,
+  "packageManager": "pnpm@11.19.0",
+  "engines": {
+    "node": ">=20.19.0"
+  },
   "main": "index.ts",
   "scripts": {
     "start": "expo start",
@@ -10,6 +14,9 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
+    "test": "pnpm test:unit",
+    "test:unit": "tsc -p tsconfig.test.json && node --test tests/*.test.cjs",
+    "export:check": "expo export --platform android --output-dir .expo-export-check",
     "doctor": "pnpm dlx expo-doctor@latest"
   },
   "dependencies": {

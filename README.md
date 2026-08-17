@@ -1,109 +1,185 @@
-# Laço — cuidado em família
+# Laço — cuidado em família, onde cada um estiver
 
-Um app móvel em React Native/Expo para organizar os cuidados da família com leveza: agenda de consultas e exames, lembretes de remédios e água, garrafinha animada, placar familiar de hidratação e um álbum de memórias.
+![Expo SDK 54](https://img.shields.io/badge/Expo%20SDK-54-000020?style=flat-square&logo=expo)
+![TypeScript strict](https://img.shields.io/badge/TypeScript-strict-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![Supabase com RLS](https://img.shields.io/badge/Supabase-RLS-3FCF8E?style=flat-square&logo=supabase&logoColor=white)
+![Licença MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-123B35?style=flat-square)
 
-## O que já funciona
+![Capa do Laço com telas demonstrativas e dados fictícios](docs/assets/laco-cover.svg)
 
-- App único para iPhone e Android com Expo SDK 54 e TypeScript.
-- Agenda familiar com consultas, exames, remédios e outros eventos.
-- Lembretes locais de eventos com mensagens bem-humoradas.
-- Lembretes de água automáticos às 09h, 12h, 15h, 18h e 21h.
-- Toque na notificação de água abre a tela da garrafa.
-- Garrafa animada que enche conforme os mililitros registrados.
-- Registro rápido de 200, 350, 500 e 750 ml ou quantidade livre.
-- Placar diário de hidratação para todos os perfis.
-- Memórias fotográficas escolhidas da galeria.
-- Animação, escala e feedback tátil nos toques.
-- Login individual por e-mail e senha com Supabase Auth.
-- Criação de família e entrada por código de convite.
-- Sincronização em tempo real de agenda, remédios, água e memórias.
-- Fotos privadas no Supabase Storage e cache local com AsyncStorage.
-- Row Level Security (RLS): somente integrantes do grupo acessam seus dados.
+Aplicativo mobile para famílias organizarem consultas, exames, medicamentos, hidratação e memórias em um único espaço compartilhado. O Laço nasceu de uma necessidade real: reduzir esquecimentos e tornar o cuidado cotidiano mais leve, colaborativo e humano.
 
-> Cada pessoa cria seu próprio acesso. A primeira cria a família; as demais usam o código exibido na tela Família. O computador não precisa ficar ligado para o Supabase sincronizar os dados, mas o Expo Go ainda depende do servidor de desenvolvimento enquanto o app não for distribuído como build.
+> **Status:** MVP funcional em evolução, desenvolvido como projeto de portfólio. Não é um dispositivo médico e não substitui orientação profissional.
 
-## Rodar no celular
+## Visão geral
 
-Requisitos: Node.js 20.19+ e o app Expo Go instalado no celular.
+O Laço reúne agenda médica, tratamentos recorrentes, hidratação e fotografias em uma experiência única para iOS e Android. Cada pessoa possui seu próprio login, entra em uma família por convite e recebe as atualizações compartilhadas pela internet.
 
-```bash
-pnpm install
-pnpm start
+### Destaques técnicos
+
+- React Native, Expo SDK 54 e TypeScript estrito.
+- Supabase Auth, PostgreSQL, Row Level Security, Realtime e Storage privado.
+- Agenda de consultas, exames, medicamentos e outros cuidados.
+- Tratamentos com duração, intervalo de horas e opção contínua.
+- Notificações locais de eventos, medicamentos e hidratação.
+- Garrafinha animada com evolução visual conforme o consumo de água.
+- Memórias fotográficas armazenadas em bucket privado.
+- Cache local para leitura rápida e sincronização com a nuvem.
+- Interface autoral com animações, feedback tátil e linguagem acolhedora.
+
+## O problema
+
+Informações de saúde da família costumam ficar espalhadas entre conversas, calendários, papéis e aplicativos individuais. Isso dificulta a colaboração, especialmente quando uma pessoa ajuda a acompanhar consultas ou tratamentos de outra.
+
+## A solução
+
+O Laço cria um espaço privado por família. Integrantes autenticados visualizam a mesma agenda, acompanham a hidratação do grupo e guardam memórias, enquanto as políticas do banco impedem o acesso de pessoas externas àquela família.
+
+```mermaid
+flowchart LR
+    A["Pessoa autenticada"] --> B["Grupo familiar"]
+    B --> C["Agenda e tratamentos"]
+    B --> D["Hidratação"]
+    B --> E["Memórias privadas"]
+    C --> F["Lembretes locais"]
+    C --> G["Sincronização Realtime"]
+    D --> G
+    E --> G
 ```
 
-Leia o QR Code exibido com o Expo Go. Para testar notificações remotas ou gerar uma versão instalável completa, use um development build; notificações locais permanecem disponíveis no Expo Go.
+## Fluxo principal
 
-## Notificações e privacidade do sistema
+1. A primeira pessoa cria uma conta e um grupo familiar.
+2. O Laço gera um código de convite para os demais integrantes.
+3. Cada familiar cria seu próprio acesso e entra no grupo.
+4. Agenda, água e memórias passam a ser sincronizadas pelo Supabase.
+5. Cada celular agenda localmente os lembretes disponíveis após sincronizar.
 
-Na primeira execução, iOS e Android exibem a caixa oficial para permitir notificações. Nenhum app pode ignorar essa decisão do usuário. Quando a pessoa autoriza, o Laço agenda automaticamente os cinco lembretes diários, sem exigir uma segunda ativação dentro do app.
+## Arquitetura
 
-Os horários são definidos em `src/services/notifications.ts`. O requisito “a cada 3h entre 09:00 e 21:30” foi traduzido como 09:00, 12:00, 15:00, 18:00 e 21:00, pois 21:30 não pertence ao ciclo exato de três horas iniciado às 09:00.
+```mermaid
+flowchart TB
+    APP["Aplicativo Expo / React Native"]
+    AUTH["Supabase Auth"]
+    API["Supabase Data API"]
+    DB["PostgreSQL + RLS"]
+    RT["Supabase Realtime"]
+    STORE["Supabase Storage privado"]
+    LOCAL["AsyncStorage"]
+    OS["Notificações iOS / Android"]
 
-## Ativar compartilhamento familiar
-
-1. Crie um projeto gratuito no Supabase.
-2. Execute `supabase/schema.sql` no SQL Editor.
-3. Copie `.env.example` para `.env.local` e preencha a URL e a chave publicável.
-4. Rode `pnpm install` e reinicie o Expo com `pnpm start`.
-5. Crie a primeira conta, confirme o e-mail e crie a família.
-6. Nos outros celulares, crie uma conta e use o código exibido na tela Família.
-
-Nunca coloque a `service_role` ou uma secret key no app. A publishable key, junto com as políticas RLS deste projeto, é a opção apropriada para o cliente móvel.
-
-## Gerar builds
-
-Instale e autentique o EAS CLI e vincule o projeto Expo (o comando `init` adicionará o `projectId`):
-
-```bash
-npx eas-cli@latest login
-npx eas-cli@latest init
-npx eas-cli@latest build --profile preview --platform android
-npx eas-cli@latest build --profile preview --platform ios
+    APP --> AUTH
+    APP --> API --> DB
+    DB --> RT --> APP
+    APP --> STORE
+    APP <--> LOCAL
+    APP --> OS
 ```
 
-O `eas.json` já possui perfis de desenvolvimento, preview e produção. Um APK Android de preview pode ser distribuído diretamente. Para instalar um build ad hoc no iPhone ou publicar nas lojas, aplicam-se as regras e contas da Apple/Google.
+Mais detalhes estão em [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
-## Publicar o código no GitHub gratuitamente
+## Segurança e privacidade
 
-```bash
-git init
-git add .
-git commit -m "feat: cria MVP do Laco"
-git branch -M main
-git remote add origin https://github.com/SEU-USUARIO/laco.git
-git push -u origin main
-```
+- Todas as tabelas compartilhadas usam Row Level Security.
+- O acesso é condicionado à participação autenticada na família.
+- Fotografias ficam em bucket privado e usam URLs assinadas temporárias.
+- A chave `service_role` nunca é utilizada pelo aplicativo.
+- Variáveis locais são ignoradas pelo Git.
+- Dados demonstrados neste repositório são fictícios.
 
-O repositório no GitHub pode ser público e gratuito. Publicar nas lojas é uma etapa diferente: o Google Play cobra cadastro único e a Apple exige assinatura anual do Developer Program. Valores e condições podem mudar, então confirme nas páginas oficiais antes de publicar.
-
-## Estrutura
-
-```text
-App.tsx                         navegação e entrada do app
-src/screens/                    Hoje, Agenda, Água, Memórias e Família
-src/state/AppContext.tsx        sessão, sincronização e ações do app
-src/services/cloud.ts           operações do Supabase e fotos privadas
-src/services/supabase.ts        cliente e persistência da sessão
-src/services/notifications.ts  agendamento e deep link das notificações
-src/services/storage.ts        persistência local
-src/components/                UI compartilhada e toques animados
-supabase/schema.sql             banco, segurança e Realtime
-```
-
-## Verificações
-
-```bash
-pnpm typecheck
-pnpm doctor
-```
+O MVP ainda possui limitações de produção documentadas no [roadmap](docs/ROADMAP.md), incluindo convites revogáveis, exclusão integral de conta e notificações remotas. Consulte também [PRIVACY.md](PRIVACY.md) e [SECURITY.md](SECURITY.md).
 
 ## Decisões de produto
 
-- Meta de água padrão: 2.000 ml, tratada como meta de hábito, não prescrição médica.
-- Dados de saúde e fotos são privados por padrão no modelo de nuvem.
-- O MVP não oferece diagnóstico, sugestão de dose ou orientação médica.
-- O código de convite deve ser enviado apenas a integrantes autorizados.
+- A meta inicial de 2.000 ml representa um hábito configurado pelo MVP, não uma prescrição.
+- O aplicativo não diagnostica, recomenda doses nem oferece aconselhamento médico.
+- As mensagens usam humor leve, preservando o cuidado como assunto principal.
+- O modo offline atual oferece leitura do último snapshot; novas alterações exigem conexão.
+- Notificações de outros familiares só são agendadas depois que o aparelho sincroniza os eventos.
 
-## Licença
+## Executar localmente
 
-MIT — consulte `LICENSE`.
+### Requisitos
+
+- Node.js 20.19 ou superior.
+- pnpm 11.19.0.
+- Expo Go compatível com o SDK ou um development build.
+- Projeto gratuito no Supabase.
+
+### Instalação
+
+```bash
+git clone URL_DO_SEU_FORK
+cd laco
+pnpm install
+```
+
+Copie `.env.example` para `.env.local` e preencha somente as credenciais públicas:
+
+```dotenv
+EXPO_PUBLIC_SUPABASE_URL=https://seu-projeto.supabase.co
+EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sua-chave-publicavel
+```
+
+Execute `supabase/schema.sql` no SQL Editor do seu projeto e inicie o aplicativo:
+
+```bash
+pnpm start
+```
+
+Nunca adicione `service_role`, secret key ou credenciais administrativas ao aplicativo.
+
+## Qualidade
+
+```bash
+pnpm typecheck
+pnpm test
+pnpm export:check
+pnpm run doctor
+```
+
+O workflow do GitHub executa verificação de tipos, testes unitários e exportação Android em cada pull request e push para `main`.
+
+## Estrutura do projeto
+
+```text
+App.tsx                         entrada, sessão e navegação
+src/screens/                    Hoje, Agenda, Água, Memórias e Família
+src/state/AppContext.tsx        estado compartilhado e sincronização
+src/services/cloud.ts           operações do Supabase e fotos privadas
+src/services/notifications.ts  agendamento e abertura de notificações
+src/services/storage.ts        persistência local
+src/utils/medication.ts        regras de tratamentos recorrentes
+src/components/                componentes visuais e interações
+tests/                          testes unitários sem dependências extras
+supabase/schema.sql             schema, funções, RLS e Realtime
+docs/                           arquitetura, roadmap e materiais do projeto
+```
+
+## Distribuição
+
+O código pode ser estudado e executado gratuitamente, mas GitHub, EAS Update, Expo Go e lojas de aplicativos são etapas diferentes. O Expo Go é usado aqui para desenvolvimento; uma distribuição pública confiável exige um build apropriado e o atendimento às regras de cada plataforma.
+
+O projeto já está vinculado a uma conta EAS. Forks devem remover ou substituir `owner`, `extra.eas.projectId` e `updates.url` no `app.json` antes de vincular seu próprio projeto.
+
+## Roadmap
+
+- [x] Autenticação e grupos familiares.
+- [x] Agenda compartilhada e medicamentos recorrentes.
+- [x] Hidratação, animações e memórias privadas.
+- [x] Realtime, cache local e políticas RLS.
+- [x] Verificação de tipos, testes iniciais e CI.
+- [ ] Exclusão completa de conta, família e arquivos.
+- [ ] Convites temporários, revogáveis e de uso único.
+- [ ] Administração de membros e trilha de alterações.
+- [ ] Push remoto para lembretes criados por outros familiares.
+- [ ] Edição e correção de eventos, água e memórias.
+- [ ] Auditoria de acessibilidade com VoiceOver e TalkBack.
+
+Consulte o plano completo em [docs/ROADMAP.md](docs/ROADMAP.md).
+
+## Contribuição e licença
+
+Contribuições devem seguir [CONTRIBUTING.md](CONTRIBUTING.md). Questões de segurança devem ser tratadas conforme [SECURITY.md](SECURITY.md), sem publicação de dados pessoais em issues.
+
+Distribuído sob a licença MIT. Consulte [LICENSE](LICENSE).

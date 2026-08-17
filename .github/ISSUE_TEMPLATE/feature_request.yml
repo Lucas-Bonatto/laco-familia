@@ -1,0 +1,37 @@
+name: Sugerir uma melhoria
+description: Proponha uma melhoria de produto, experiência ou engenharia.
+title: "feat: "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problema
+      description: Que necessidade familiar ou técnica ainda não está bem atendida?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposta
+      description: Descreva o comportamento desejado sem limitar a discussão à primeira implementação imaginada.
+    validations:
+      required: true
+  - type: textarea
+    id: risks
+    attributes:
+      label: Privacidade, segurança e acessibilidade
+      description: A proposta afeta dados de saúde, permissões, notificações, RLS ou pessoas com deficiência?
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Área principal
+      options:
+        - Privacidade e segurança
+        - Agenda e medicamentos
+        - Hidratação
+        - Memórias
+        - Família e convites
+        - Acessibilidade
+        - Engenharia e testes
+    validations:
+      required: true

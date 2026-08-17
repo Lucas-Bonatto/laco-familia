@@ -1,0 +1,53 @@
+name: Relatar um bug
+description: Informe um comportamento inesperado usando somente dados fictícios.
+title: "bug: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por ajudar. Não inclua nomes, e-mails, dados médicos, endereços, fotos, tokens ou URLs assinadas.
+  - type: textarea
+    id: behavior
+    attributes:
+      label: Comportamento observado
+      description: O que aconteceu e qual era o resultado esperado?
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Passos para reproduzir
+      placeholder: |
+        1. Entre com uma conta de teste
+        2. Abra a tela...
+        3. Toque em...
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Plataforma
+      options:
+        - iPhone / iOS
+        - Android
+        - Ambas
+        - Não se aplica
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Versão ou commit
+      placeholder: 1.0.0 ou facb3b4
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidências sem dados pessoais
+      description: Cole mensagens de erro sanitizadas ou screenshots com dados fictícios.
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacidade
+      options:
+        - label: Confirmei que este relato não contém dados pessoais, médicos ou credenciais.
+          required: true

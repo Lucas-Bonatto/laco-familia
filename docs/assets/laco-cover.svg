@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="790" viewBox="0 0 1400 790" role="img" aria-labelledby="title description">
+  <title id="title">Laço, cuidado em família</title>
+  <desc id="description">Capa demonstrativa com duas telas fictícias do aplicativo Laço.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F7F3EC"/>
+      <stop offset="1" stop-color="#E6F5EF"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#123B35" flood-opacity="0.16"/>
+    </filter>
+  </defs>
+
+  <rect width="1400" height="790" rx="36" fill="url(#background)"/>
+  <circle cx="1180" cy="80" r="230" fill="#BDE9F3" opacity="0.46"/>
+  <circle cx="130" cy="730" r="180" fill="#FAD9D2" opacity="0.55"/>
+
+  <g transform="translate(82 78)">
+    <rect width="82" height="82" rx="25" fill="#123B35"/>
+    <path d="M41 61C31 53 20 46 20 34c0-9 7-15 15-15 4 0 8 2 11 6 3-4 7-6 11-6 8 0 15 6 15 15 0 12-11 19-21 27l-5 4-5-4z" fill="#FFFFFF"/>
+    <text x="112" y="30" fill="#36A67C" font-family="Arial, sans-serif" font-size="22" font-weight="700" letter-spacing="7">LAÇO</text>
+    <text x="112" y="72" fill="#123B35" font-family="Arial, sans-serif" font-size="25">Cuidado compartilhado, onde cada um estiver.</text>
+  </g>
+
+  <g transform="translate(82 225)" font-family="Arial, sans-serif">
+    <text fill="#123B35" font-size="66" font-weight="800">Quem cuida junto,</text>
+    <text y="77" fill="#123B35" font-size="66" font-weight="800">lembra junto.</text>
+    <text y="135" fill="#566B65" font-size="25">Agenda, hidratação e memórias para toda a família.</text>
+
+    <g transform="translate(0 185)" font-size="19" font-weight="700" fill="#123B35">
+      <rect width="166" height="50" rx="25" fill="#FFFFFF"/>
+      <text x="27" y="32">React Native</text>
+      <rect x="180" width="108" height="50" rx="25" fill="#D2F3E6"/>
+      <text x="211" y="32">Expo</text>
+      <rect x="302" width="136" height="50" rx="25" fill="#BDE9F3"/>
+      <text x="327" y="32">Supabase</text>
+    </g>
+
+    <g transform="translate(0 280)">
+      <text fill="#36A67C" font-size="18" font-weight="700" letter-spacing="3">PROJETO DE PORTFÓLIO</text>
+      <text y="40" fill="#566B65" font-size="20">Auth • Realtime • RLS • Storage • Notificações</text>
+    </g>
+  </g>
+
+  <g transform="translate(745 55)" filter="url(#shadow)" font-family="Arial, sans-serif">
+    <rect width="330" height="680" rx="48" fill="#FFFFFF"/>
+    <rect x="118" y="14" width="94" height="8" rx="4" fill="#D2DAD7"/>
+    <text x="28" y="70" fill="#36A67C" font-size="12" font-weight="700" letter-spacing="2">QUINTAL DA FAMÍLIA</text>
+    <text x="28" y="109" fill="#123B35" font-size="29" font-weight="800">Oi, Família Aurora!</text>
+    <text x="28" y="135" fill="#6F7E79" font-size="14">Vamos cuidar de quem a gente ama?</text>
+
+    <rect x="22" y="164" width="286" height="234" rx="30" fill="#BDE9F3"/>
+    <text x="42" y="202" fill="#2389A1" font-size="12" font-weight="700" letter-spacing="2">META DE HOJE</text>
+    <text x="42" y="248" fill="#123B35" font-size="27" font-weight="800">Hidratação em</text>
+    <text x="42" y="280" fill="#123B35" font-size="27" font-weight="800">andamento!</text>
+    <text x="42" y="327" fill="#123B35" font-size="29" font-weight="800">1.200 ml</text>
+    <text x="42" y="351" fill="#566B65" font-size="14">de 2.000 ml · 60%</text>
+
+    <rect x="221" y="211" width="59" height="149" rx="24" fill="#FFFFFF" stroke="#FFFFFF" stroke-width="7"/>
+    <path d="M225 278h51v68c0 8-6 14-14 14h-23c-8 0-14-6-14-14z" fill="#42B3CC"/>
+    <circle cx="242" cy="297" r="3.5" fill="#123B35"/>
+    <circle cx="260" cy="297" r="3.5" fill="#123B35"/>
+    <path d="M242 317c6 5 12 5 18 0" fill="none" stroke="#123B35" stroke-width="3" stroke-linecap="round"/>
+
+    <text x="24" y="442" fill="#123B35" font-size="22" font-weight="800">Próximos cuidados</text>
+    <rect x="22" y="461" width="286" height="85" rx="22" fill="#F7F3EC"/>
+    <circle cx="55" cy="503" r="22" fill="#FAD9D2"/>
+    <text x="88" y="493" fill="#123B35" font-size="16" font-weight="700">Consulta de rotina</text>
+    <text x="88" y="520" fill="#6F7E79" font-size="13">Amanhã · 10:30</text>
+
+    <rect x="18" y="595" width="294" height="64" rx="26" fill="#F7F3EC"/>
+    <g fill="#566B65" font-size="10" text-anchor="middle">
+      <circle cx="54" cy="617" r="15" fill="#123B35"/>
+      <text x="54" y="644" fill="#123B35" font-weight="700">Hoje</text>
+      <text x="108" y="622">▦</text><text x="108" y="644">Agenda</text>
+      <text x="166" y="622">◉</text><text x="166" y="644">Água</text>
+      <text x="226" y="622">▧</text><text x="226" y="644">Memórias</text>
+      <text x="282" y="622">♙</text><text x="282" y="644">Família</text>
+    </g>
+  </g>
+
+  <g transform="translate(1085 142)" filter="url(#shadow)" font-family="Arial, sans-serif">
+    <rect width="255" height="520" rx="40" fill="#FFFDFC"/>
+    <rect x="91" y="12" width="73" height="7" rx="4" fill="#D2DAD7"/>
+    <text x="22" y="72" fill="#123B35" font-size="27" font-weight="800">Agenda</text>
+    <text x="22" y="96" fill="#6F7E79" font-size="13">Ninguém vai poder dizer</text>
+    <text x="22" y="113" fill="#6F7E79" font-size="13">“eu esqueci”.</text>
+
+    <rect x="18" y="143" width="219" height="64" rx="20" fill="#123B35"/>
+    <text x="33" y="170" fill="#FFFFFF" font-size="12">HOJE</text>
+    <text x="33" y="191" fill="#FFFFFF" font-size="16" font-weight="700">Vitamina D · 20:00</text>
+
+    <text x="22" y="248" fill="#123B35" font-size="18" font-weight="800">Próximos</text>
+    <rect x="18" y="266" width="219" height="87" rx="20" fill="#FFFFFF" stroke="#E3E8E6"/>
+    <circle cx="48" cy="309" r="20" fill="#D2F3E6"/>
+    <text x="77" y="300" fill="#123B35" font-size="14" font-weight="700">Exame anual</text>
+    <text x="77" y="324" fill="#6F7E79" font-size="12">Sexta · 09:00</text>
+
+    <rect x="18" y="366" width="219" height="87" rx="20" fill="#FFFFFF" stroke="#E3E8E6"/>
+    <circle cx="48" cy="409" r="20" fill="#FDECC6"/>
+    <text x="77" y="400" fill="#123B35" font-size="14" font-weight="700">Passeio em família</text>
+    <text x="77" y="424" fill="#6F7E79" font-size="12">Domingo · 15:00</text>
+  </g>
+</svg>
