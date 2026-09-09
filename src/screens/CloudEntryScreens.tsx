@@ -95,7 +95,7 @@ export function FamilySetupScreen() {
   const [inviteCode, setInviteCode] = useState('');
   const [loading, setLoading] = useState(false);
   useEffect(() => { if (!displayName) setDisplayName(suggestedDisplayName); }, [displayName, suggestedDisplayName]);
-  const valid = Boolean(displayName.trim() && (mode === 'create' ? familyName.trim() : inviteCode.replace(/\W/g, '').length === 8));
+  const valid = Boolean(displayName.trim() && (mode === 'create' ? familyName.trim() : inviteCode.replace(/\W/g, '').length === 12));
 
   const submit = async () => {
     if (!valid || loading) return;
@@ -125,7 +125,7 @@ export function FamilySetupScreen() {
       </View>
       <View style={styles.formCard}>
         <Text style={styles.label}>Seu nome no grupo</Text><TextInput value={displayName} onChangeText={setDisplayName} autoCapitalize="words" placeholder="Ex.: Lucas" placeholderTextColor="#9AA5A1" style={styles.input} />
-        {mode === 'create' ? <><Text style={styles.label}>Nome da família</Text><TextInput value={familyName} onChangeText={setFamilyName} autoCapitalize="words" placeholder="Ex.: Nosso Ninho" placeholderTextColor="#9AA5A1" style={styles.input} /></> : <><Text style={styles.label}>Código do convite</Text><TextInput value={inviteCode} onChangeText={(value) => setInviteCode(value.toLocaleUpperCase('pt-BR').replace(/[^A-F0-9]/g, '').slice(0, 8))} autoCapitalize="characters" autoCorrect={false} maxLength={8} placeholder="Ex.: A1B2C3D4" placeholderTextColor="#9AA5A1" style={[styles.input, styles.codeInput]} /></>}
+        {mode === 'create' ? <><Text style={styles.label}>Nome da família</Text><TextInput value={familyName} onChangeText={setFamilyName} autoCapitalize="words" placeholder="Ex.: Nosso Ninho" placeholderTextColor="#9AA5A1" style={styles.input} /></> : <><Text style={styles.label}>Código do convite</Text><TextInput value={inviteCode} onChangeText={(value) => setInviteCode(value.toLocaleUpperCase('pt-BR').replace(/[^A-F0-9]/g, '').slice(0, 12))} autoCapitalize="characters" autoCorrect={false} maxLength={12} placeholder="Ex.: A1B2C3D4E5F6" placeholderTextColor="#9AA5A1" style={[styles.input, styles.codeInput]} /></>}
         <AnimatedPressable disabled={!valid || loading} onPress={() => void submit()} style={styles.primaryButton}><Ionicons name={mode === 'create' ? 'home-outline' : 'people-outline'} size={19} color={colors.surface} /><Text style={styles.primaryButtonText}>{loading ? 'Preparando...' : mode === 'create' ? 'Criar nosso espaço' : 'Entrar na família'}</Text></AnimatedPressable>
       </View>
       <AnimatedPressable onPress={() => void signOut().catch((error) => Alert.alert('Não foi possível sair', friendlyCloudError(error)))} style={styles.signOutButton}><Ionicons name="log-out-outline" size={17} color={colors.muted} /><Text style={styles.signOutText}>Usar outra conta</Text></AnimatedPressable>

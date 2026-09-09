@@ -20,11 +20,11 @@ Informações relacionadas à saúde podem ser dados pessoais sensíveis. Não u
 - Compartilhar cuidados dentro da família selecionada.
 - Sincronizar agenda, hidratação e memórias.
 - Agendar lembretes no aparelho.
-- Exibir o último snapshot local quando disponível.
+- Carregar dados familiares da nuvem sem manter um snapshot médico persistente.
 
 ## Armazenamento
 
-Dados compartilhados ficam no projeto Supabase configurado por quem executa o aplicativo. Fotografias ficam em bucket privado. Um snapshot local e a sessão podem ser persistidos no aparelho por meio do AsyncStorage.
+Dados compartilhados ficam no projeto Supabase configurado por quem executa o aplicativo. Fotografias ficam em bucket privado e seus links assinados expiram em cinco minutos. No celular, a sessão é protegida pelo Keychain/Keystore por meio do Expo SecureStore. O AsyncStorage mantém somente identificadores técnicos e impressões opacas necessários para reconciliar notificações; snapshots antigos com dados familiares são removidos na inicialização.
 
 ## Compartilhamento
 
@@ -33,9 +33,8 @@ O modelo foi desenhado para compartilhar dados apenas com integrantes autenticad
 ## Limitações atuais
 
 - A exclusão integral de conta, linhas relacionadas e fotografias ainda não está implementada no aplicativo.
-- Convites ainda não expiram nem podem ser revogados.
 - O conteúdo de lembretes pode aparecer na tela bloqueada conforme a configuração do aparelho.
-- Links assinados de imagens permanecem válidos até sua expiração.
+- Links assinados de imagens permanecem acessíveis durante sua validade de cinco minutos.
 
 ## Antes de operar publicamente
 

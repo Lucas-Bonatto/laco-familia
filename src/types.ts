@@ -6,6 +6,7 @@ export type FamilyMember = {
   userId: string;
   name: string;
   role: string;
+  isOwner: boolean;
   initials: string;
   color: string;
 };
@@ -71,6 +72,7 @@ export type AppSnapshot = {
   familyId: string;
   familyName: string;
   inviteCode: string;
+  inviteExpiresAt: string;
   members: FamilyMember[];
   events: FamilyEvent[];
   waterEntries: WaterEntry[];

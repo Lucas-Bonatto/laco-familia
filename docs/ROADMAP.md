@@ -6,13 +6,13 @@ O roadmap separa melhorias de produção de funcionalidades desejáveis. A ordem
 
 - [ ] Exclusão completa de conta, dados relacionais e objetos do Storage.
 - [ ] Exportação e correção de dados do titular.
-- [ ] Convites temporários, revogáveis e preferencialmente de uso único.
+- [x] Convites temporários, revogáveis, de uso único e com limitação de tentativas.
 - [ ] Remoção de membro com impedimento de reentrada pelo convite antigo.
 - [ ] Cancelamento de notificações quando a pessoa deixa a família.
 - [ ] Correção do fluxo “permissão negada e depois habilitada”.
 - [ ] Modo privado para o conteúdo das notificações.
 - [ ] Recuperação de senha e callback correto de confirmação de e-mail.
-- [ ] Migrations versionadas e testes adversariais das políticas RLS.
+- [x] Migrations versionadas e testes adversariais das políticas RLS.
 
 ## P1 — integridade e colaboração
 

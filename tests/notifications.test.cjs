@@ -3,6 +3,7 @@ const test = require('node:test');
 
 const {
   collectDailyWaterNotificationIds,
+  hashNotificationFingerprint,
 } = require('../.test-dist/utils/notifications.js');
 
 test('reúne lembretes salvos e lembretes de água órfãos sem duplicar IDs', () => {
@@ -15,6 +16,16 @@ test('reúne lembretes salvos e lembretes de água órfãos sem duplicar IDs', (
   );
 
   assert.deepEqual(ids, ['water-1', 'water-2', 'water-orphan']);
+});
+
+test('persiste somente uma impressão opaca dos detalhes da notificação', () => {
+  const sensitiveValue = JSON.stringify({ title: 'Consulta cardiologista', startsAt: '2026-09-10T10:00:00Z' });
+  const fingerprint = hashNotificationFingerprint(sensitiveValue);
+
+  assert.match(fingerprint, /^[a-f0-9]{8}$/);
+  assert.equal(fingerprint.includes('Consulta'), false);
+  assert.equal(hashNotificationFingerprint(sensitiveValue), fingerprint);
+  assert.notEqual(hashNotificationFingerprint(sensitiveValue + '!'), fingerprint);
 });
 
 test('preserva notificações que não pertencem aos lembretes diários de água', () => {

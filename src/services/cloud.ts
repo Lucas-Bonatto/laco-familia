@@ -1,7 +1,9 @@
 import type { AppSnapshot, FamilyEvent, FamilyMember, Memory, WaterEntry } from '../types';
+import { joinFamilyOutcomeMessage, type JoinFamilyOutcome } from '../utils/invites';
 import { supabase } from './supabase';
 
-type FamilyRow = { id: string; name: string; invite_code: string };
+type FamilyRow = { id: string; name: string };
+type InviteRow = { invite_code: string; expires_at: string; remaining_uses: number };
 type MemberRow = {
   id: string;
   family_id: string;
@@ -40,9 +42,16 @@ type MemoryRow = {
   created_by: string;
   created_at: string;
 };
+type JoinFamilyRow = {
+  family_id: string | null;
+  family_name: string | null;
+  member_id: string | null;
+  outcome: JoinFamilyOutcome;
+};
 
 export type NewCloudEvent = Omit<FamilyEvent, 'id' | 'createdById' | 'notificationId' | 'notificationIds'>;
 export type NewCloudMemory = Pick<Memory, 'title' | 'caption' | 'imageUri'>;
+export const MEMORY_SIGNED_URL_TTL_SECONDS = 5 * 60;
 
 function initialsFor(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
@@ -56,6 +65,7 @@ function memberFromRow(row: MemberRow, currentUserId: string): FamilyMember {
     userId: row.user_id,
     name: row.display_name,
     role: row.user_id === currentUserId ? 'Você' : row.role === 'owner' ? 'Administrador' : 'Família',
+    isOwner: row.role === 'owner',
     initials: initialsFor(row.display_name),
     color: row.color,
   };
@@ -92,7 +102,9 @@ function eventFromRow(row: EventRow, memberRows: MemberRow[]): FamilyEvent {
 }
 
 async function memoryFromRow(row: MemoryRow, memberRows: MemberRow[]): Promise<Memory> {
-  const { data } = await supabase.storage.from('family-memories').createSignedUrl(row.image_path, 60 * 60 * 24 * 7);
+  const { data } = await supabase.storage
+    .from('family-memories')
+    .createSignedUrl(row.image_path, MEMORY_SIGNED_URL_TTL_SECONDS);
   const creator = memberRows.find((member) => member.user_id === row.created_by);
   return {
     id: row.id,
@@ -119,14 +131,14 @@ export async function loadCloudSnapshot(
 
   if (!ownMembership) {
     return {
-      familyId: '', familyName: '', inviteCode: '', members: [], events: [],
+      familyId: '', familyName: '', inviteCode: '', inviteExpiresAt: '', members: [], events: [],
       waterEntries: [], memories: [], activeMemberId: '',
     };
   }
 
   const familyId = ownMembership.family_id;
   const [familyResult, membersResult, eventsResult, waterResult, memoriesResult] = await Promise.all([
-    supabase.from('families').select('id,name,invite_code').eq('id', familyId).single(),
+    supabase.from('families').select('id,name').eq('id', familyId).single(),
     supabase.from('family_members').select('id,family_id,user_id,display_name,role,color').eq('family_id', familyId).order('created_at'),
     supabase.from('events').select('id,title,kind,starts_at,subject_member_id,created_by,location,notes,reminder_minutes,medication_mode,medication_time,medication_duration_days,medication_interval_hours,medication_total_doses').eq('family_id', familyId).order('starts_at'),
     supabase.from('water_entries').select('id,subject_member_id,amount_ml,created_at').eq('family_id', familyId).order('created_at', { ascending: false }).limit(3000),
@@ -140,6 +152,14 @@ export async function loadCloudSnapshot(
   const family = familyResult.data as FamilyRow;
   const memberRows = membersResult.data as MemberRow[];
   const members = memberRows.map((row) => memberFromRow(row, currentUserId));
+  let invitation: InviteRow | null = null;
+  if (ownMembership.role === 'owner') {
+    const invitationResult = await supabase
+      .rpc('get_active_family_invite', { target_family_id: familyId })
+      .maybeSingle();
+    if (invitationResult.error) throw invitationResult.error;
+    invitation = invitationResult.data as InviteRow | null;
+  }
   const currentMember = members.find((member) => member.userId === currentUserId);
   const activeMemberId = members.some((member) => member.id === preferredActiveMemberId)
     ? preferredActiveMemberId
@@ -149,7 +169,8 @@ export async function loadCloudSnapshot(
   return {
     familyId: family.id,
     familyName: family.name,
-    inviteCode: family.invite_code,
+    inviteCode: invitation?.invite_code ?? '',
+    inviteExpiresAt: invitation?.expires_at ?? '',
     members,
     events: (eventsResult.data as EventRow[]).map((row) => eventFromRow(row, memberRows)),
     waterEntries: (waterResult.data as WaterRow[]).map<WaterEntry>((row) => ({
@@ -172,9 +193,27 @@ export async function createCloudFamily(familyName: string, displayName: string)
 }
 
 export async function joinCloudFamily(inviteCode: string, displayName: string) {
-  const { error } = await supabase.rpc('join_family', {
+  const { data, error } = await supabase.rpc('join_family', {
     invite_code_input: inviteCode.trim(),
     display_name_input: displayName.trim(),
+  });
+  if (error) throw error;
+  const result = (data as JoinFamilyRow[] | null)?.[0];
+  if (result?.outcome !== 'JOINED') {
+    throw new Error(joinFamilyOutcomeMessage(result?.outcome));
+  }
+}
+
+export async function rotateCloudFamilyInvite(familyId: string) {
+  const { error } = await supabase.rpc('rotate_family_invite', {
+    target_family_id: familyId,
+  });
+  if (error) throw error;
+}
+
+export async function revokeCloudFamilyInvite(familyId: string) {
+  const { error } = await supabase.rpc('revoke_family_invite', {
+    target_family_id: familyId,
   });
   if (error) throw error;
 }

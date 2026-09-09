@@ -13,7 +13,8 @@ Este documento descreve as decisões atuais do MVP e deixa explícitos os limite
 | Autorização | PostgreSQL Row Level Security | Restringir cada registro aos integrantes da família correta |
 | Tempo real | Supabase Realtime | Notificar aparelhos abertos sobre alterações compartilhadas |
 | Arquivos | Supabase Storage | Fotografias privadas organizadas por família |
-| Cache | AsyncStorage | Último snapshot disponível e sessão do cliente |
+| Sessão local | Expo SecureStore | Proteger tokens no Keychain/Keystore do aparelho |
+| Estado técnico | AsyncStorage | IDs e impressões opacas para reconciliar notificações |
 | Alertas | expo-notifications | Lembretes locais do aparelho |
 
 ## Modelo de dados
@@ -23,6 +24,7 @@ erDiagram
     AUTH_USERS ||--|| PROFILES : possui
     AUTH_USERS ||--o{ FAMILY_MEMBERS : participa
     FAMILIES ||--o{ FAMILY_MEMBERS : agrega
+    FAMILIES ||--o{ FAMILY_INVITES : emite
     FAMILIES ||--o{ EVENTS : organiza
     FAMILIES ||--o{ WATER_ENTRIES : acompanha
     FAMILIES ||--o{ MEMORIES : guarda
@@ -36,17 +38,17 @@ Eventos e hidratação usam chaves estrangeiras compostas para impedir que o int
 
 O aplicativo utiliza somente a URL pública e a publishable key do Supabase. As políticas RLS consultam a participação do usuário autenticado na família antes de autorizar leitura ou alteração.
 
-As operações privilegiadas de criação e entrada em família ficam em funções privadas com `SECURITY DEFINER`, `search_path` fixo e permissão de execução limitada. A `service_role` não pertence ao cliente móvel.
+As operações privilegiadas de criação, entrada e gestão de convites ficam em funções privadas com `SECURITY DEFINER`, `search_path` vazio e permissão de execução limitada. Convites são segredos temporários de uso único; somente o proprietário os consulta ou revoga. A `service_role` não pertence ao cliente móvel.
 
 ## Sincronização
 
 1. O aplicativo autentica a pessoa.
 2. Um snapshot inicial é carregado do Supabase.
-3. O snapshot é salvo localmente para abertura rápida.
+3. O snapshot permanece somente na memória do processo.
 4. O Realtime solicita uma nova leitura quando alguma tabela compartilhada muda.
-5. A interface recebe o snapshot mais recente.
+5. A interface recebe o snapshot mais recente; ao sair, o estado em memória e resíduos legados são apagados.
 
-O cache atual é de leitura. Alterações feitas offline não entram em fila e precisam ser repetidas quando a conexão voltar.
+Dados familiares exigem conexão. Essa escolha evita persistir no AsyncStorage consultas, medicamentos, notas e URLs de fotografias; alterações feitas offline não entram em fila.
 
 ## Notificações
 
@@ -56,18 +58,17 @@ Uma versão de produção deverá combinar notificações locais com push remoto
 
 ## Fotografias
 
-O app envia a imagem para um bucket privado e grava no banco somente o caminho do objeto e seus metadados. A leitura usa URL assinada temporária. A exclusão completa ainda precisa coordenar a linha do banco e o objeto do Storage.
+O app envia a imagem para um bucket privado e grava no banco somente o caminho do objeto e seus metadados. A leitura usa URL assinada com validade de cinco minutos. A exclusão completa ainda precisa coordenar a linha do banco e o objeto do Storage.
 
 ## Decisões e compromissos
 
 - React Context evita uma dependência adicional no tamanho atual do MVP.
-- Um snapshot completo simplifica a primeira versão, mas deverá dar lugar a paginação e atualizações incrementais.
+- Um snapshot em memória simplifica a primeira versão, mas deverá dar lugar a paginação e atualizações incrementais.
 - Expo acelera o desenvolvimento multiplataforma, mas Expo Go não é o canal final de distribuição.
 - RLS mantém a autorização próxima aos dados, mas exige testes automatizados com famílias adversárias.
 
 ## Riscos conhecidos
 
-- Código de convite permanente e compartilhado.
 - Ausência de exclusão integral de conta e arquivos.
 - Notificações de saúde potencialmente visíveis na tela bloqueada.
 - Reagendamento local dependente de sincronização do aparelho.
