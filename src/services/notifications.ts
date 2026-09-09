@@ -2,7 +2,7 @@ import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import type { FamilyEvent } from '../types';
 import { MAX_MEDICATION_DOSES, timeParts } from '../utils/medication';
-import { collectDailyWaterNotificationIds } from '../utils/notifications';
+import { collectDailyWaterNotificationIds, hashNotificationFingerprint } from '../utils/notifications';
 import {
   loadEventNotificationMap,
   loadWaterNotificationIds,
@@ -181,13 +181,13 @@ export async function cancelEventReminders(event: FamilyEvent) {
 }
 
 function eventFingerprint(event: FamilyEvent) {
-  return JSON.stringify({
+  return hashNotificationFingerprint(JSON.stringify({
     title: event.title,
     kind: event.kind,
     startsAt: event.startsAt,
     reminderMinutes: event.reminderMinutes,
     medicationSchedule: event.medicationSchedule ?? null,
-  });
+  }));
 }
 
 let reconcileQueue = Promise.resolve();

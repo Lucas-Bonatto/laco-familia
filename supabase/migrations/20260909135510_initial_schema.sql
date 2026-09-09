@@ -1,5 +1,5 @@
--- BASELINE HISTÓRICO: não execute em uma instalação nova.
--- Use as migrations versionadas em supabase/migrations; consulte supabase/README.md.
+-- Laço: banco compartilhado, autenticação e regras de segurança.
+-- Execute uma única vez no SQL Editor do projeto Supabase.
 
 begin;
 

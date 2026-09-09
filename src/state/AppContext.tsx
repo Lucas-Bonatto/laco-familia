@@ -9,11 +9,13 @@ import {
   insertCloudWater,
   joinCloudFamily,
   loadCloudSnapshot,
+  revokeCloudFamilyInvite,
+  rotateCloudFamilyInvite,
   type NewCloudEvent,
   type NewCloudMemory,
 } from '../services/cloud';
 import { clearEventReminders, reconcileEventReminders } from '../services/notifications';
-import { loadSnapshot, saveSnapshot } from '../services/storage';
+import { clearLocalUserData, purgeLegacySensitiveSnapshots } from '../services/storage';
 import { isSupabaseConfigured, supabase } from '../services/supabase';
 import type { AppSnapshot, SyncStatus } from '../types';
 
@@ -29,6 +31,8 @@ type AppContextValue = AppSnapshot & {
   signOut: () => Promise<void>;
   createFamily: (displayName: string, familyName: string) => Promise<void>;
   joinFamily: (displayName: string, inviteCode: string) => Promise<void>;
+  rotateFamilyInvite: () => Promise<void>;
+  revokeFamilyInvite: () => Promise<void>;
   completeOnboarding: (name: string, familyName: string) => Promise<void>;
   refresh: () => Promise<void>;
   setActiveMemberId: (memberId: string) => void;
@@ -66,14 +70,20 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => { activeMemberIdRef.current = snapshot.activeMemberId; }, [snapshot.activeMemberId]);
 
   useEffect(() => {
+    const localCleanup = purgeLegacySensitiveSnapshots().catch(() => undefined);
     if (!isSupabaseConfigured) return;
     let mounted = true;
-    void supabase.auth.getSession().then(({ data }: { data: { session: Session | null } }) => {
-      if (mounted) {
-        setSession(data.session);
-        setAuthReady(true);
-      }
-    });
+    void localCleanup
+      .then(() => supabase.auth.getSession())
+      .then(({ data }: { data: { session: Session | null } }) => {
+        if (mounted) {
+          setSession(data.session);
+          setAuthReady(true);
+        }
+      })
+      .catch(() => {
+        if (mounted) setAuthReady(true);
+      });
     const { data } = supabase.auth.onAuthStateChange((_event: AuthChangeEvent, nextSession: Session | null) => {
       if (mounted) {
         setSession(nextSession);
@@ -111,13 +121,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
     let cancelled = false;
     setHydrated(false);
-    void loadSnapshot(userId).then((cached) => {
-      if (!cancelled && cached) {
-        activeMemberIdRef.current = cached.activeMemberId;
-        setSnapshot(cached);
-      }
-      return refresh();
-    }).catch(() => {
+    void refresh().catch(() => {
       if (!cancelled) {
         setHydrated(true);
         setSyncStatus('error');
@@ -125,11 +129,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     });
     return () => { cancelled = true; };
   }, [authReady, session?.user.id, refresh]);
-
-  useEffect(() => {
-    const userId = session?.user.id;
-    if (userId && hydrated) void saveSnapshot(userId, snapshot);
-  }, [session?.user.id, hydrated, snapshot]);
 
   useEffect(() => {
     const userId = session?.user.id;
@@ -175,8 +174,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = useCallback(async () => {
     const userId = session?.user.id;
-    if (userId) await clearEventReminders(userId);
     const { error } = await supabase.auth.signOut();
+    if (error) await supabase.auth.signOut({ scope: 'local' });
+    if (userId) {
+      await clearEventReminders(userId).catch(() => undefined);
+      await clearLocalUserData(userId).catch(() => undefined);
+    }
+    activeMemberIdRef.current = '';
+    setSnapshot(createInitialSnapshot());
+    setHydrated(true);
+    setSyncStatus('idle');
     if (error) throw error;
   }, [session?.user.id]);
 
@@ -189,6 +196,18 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     await joinCloudFamily(inviteCode, displayName);
     await refresh();
   }, [refresh]);
+
+  const rotateFamilyInvite = useCallback(async () => {
+    if (!snapshot.familyId) throw new Error('Entre na família antes de criar um convite.');
+    await rotateCloudFamilyInvite(snapshot.familyId);
+    await refresh();
+  }, [snapshot.familyId, refresh]);
+
+  const revokeFamilyInvite = useCallback(async () => {
+    if (!snapshot.familyId) throw new Error('Entre na família antes de revogar o convite.');
+    await revokeCloudFamilyInvite(snapshot.familyId);
+    await refresh();
+  }, [snapshot.familyId, refresh]);
 
   const completeOnboarding = useCallback(async (name: string, familyName: string) => {
     await createFamily(name, familyName);
@@ -247,6 +266,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     signOut,
     createFamily,
     joinFamily,
+    rotateFamilyInvite,
+    revokeFamilyInvite,
     completeOnboarding,
     refresh,
     setActiveMemberId,
@@ -257,7 +278,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     waterTotalFor,
   }), [
     snapshot, session, authReady, hydrated, syncStatus, signIn, signUp, signOut,
-    createFamily, joinFamily, completeOnboarding, refresh, setActiveMemberId,
+    createFamily, joinFamily, rotateFamilyInvite, revokeFamilyInvite,
+    completeOnboarding, refresh, setActiveMemberId,
     addEvent, removeEvent, addWater, addMemory, waterTotalFor,
   ]);
 

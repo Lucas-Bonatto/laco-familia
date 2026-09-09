@@ -12,6 +12,7 @@
   },
   "include": [
     "src/utils/medication.ts",
+    "src/utils/invites.ts",
     "src/utils/notifications.ts"
   ]
 }

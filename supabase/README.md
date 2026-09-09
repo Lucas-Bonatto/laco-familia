@@ -2,7 +2,24 @@
 
 ## Instalação nova
 
-Execute somente `schema.sql` em um projeto vazio. O arquivo cria tabelas, funções, políticas RLS, bucket privado, políticas de Storage e configuração de Realtime necessárias ao MVP.
+As migrations em `migrations/` são a fonte canônica do banco. Para recriar e validar um ambiente local:
+
+```bash
+supabase start
+supabase db reset
+supabase test db
+supabase db lint --local --level warning --fail-on error
+```
+
+Para um ambiente remoto, vincule explicitamente o projeto, revise o dry-run e só então aplique:
+
+```bash
+supabase link --project-ref <project-id>
+supabase db push --dry-run
+supabase db push
+```
+
+`schema.sql` é apenas o baseline histórico anterior às migrations e não deve ser executado em instalações novas.
 
 ## Patch histórico
 
@@ -12,8 +29,8 @@ Execute somente `schema.sql` em um projeto vazio. O arquivo cria tabelas, funç�
 
 - Não altere RLS sem testar duas famílias distintas.
 - Não use a `service_role` no aplicativo móvel.
-- Prefira migrations incrementais para mudanças posteriores à instalação inicial.
+- Crie toda mudança com `supabase migration new <nome>`.
 - Documente estratégia de rollback e impacto sobre dados existentes.
 - Nunca inclua dumps com dados pessoais no repositório.
 
-O próximo passo de infraestrutura é transformar o schema inicial e todas as alterações futuras em migrations versionadas pelo Supabase CLI.
+Os testes em `tests/` devem provar isolamento entre duas famílias e cobrir qualquer RPC privilegiada nova.

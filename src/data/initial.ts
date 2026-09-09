@@ -5,6 +5,7 @@ export function createInitialSnapshot(): AppSnapshot {
     familyId: '',
     familyName: '',
     inviteCode: '',
+    inviteExpiresAt: '',
     members: [],
     events: [],
     activeMemberId: '',

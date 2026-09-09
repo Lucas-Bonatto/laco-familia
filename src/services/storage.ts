@@ -1,5 +1,4 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import type { AppSnapshot } from '../types';
 
 const SNAPSHOT_PREFIX = '@laco/cloud-snapshot/v1';
 const LEGACY_SNAPSHOT_KEYS = ['@laco/app-snapshot/v1', '@laco/app-snapshot/v2', '@laco/app-snapshot/v3'];
@@ -9,25 +8,22 @@ const EVENT_NOTIFICATION_PREFIX = '@laco/event-notifications/v1';
 export type EventNotificationRecord = { fingerprint: string; ids: string[] };
 export type EventNotificationMap = Record<string, EventNotificationRecord>;
 
-export async function loadSnapshot(userId: string): Promise<AppSnapshot | null> {
-  await AsyncStorage.multiRemove(LEGACY_SNAPSHOT_KEYS);
-  const value = await AsyncStorage.getItem(`${SNAPSHOT_PREFIX}/${userId}`);
-  if (!value) return null;
-  try {
-    const snapshot = JSON.parse(value) as AppSnapshot;
-    if (
-      typeof snapshot.familyId !== 'string' ||
-      typeof snapshot.familyName !== 'string' ||
-      typeof snapshot.inviteCode !== 'string' ||
-      !Array.isArray(snapshot.members) ||
-      snapshot.members.some((member) => typeof member.userId !== 'string')
-    ) return null;
-    return snapshot;
-  } catch { return null; }
+export async function purgeLegacySensitiveSnapshots() {
+  const keys = await AsyncStorage.getAllKeys();
+  const sensitiveKeys = keys.filter((key) => (
+    LEGACY_SNAPSHOT_KEYS.includes(key)
+    || key.startsWith(`${SNAPSHOT_PREFIX}/`)
+    || /^sb-[a-z0-9-]+-auth-token(?:-code-verifier)?$/i.test(key)
+  ));
+  if (sensitiveKeys.length) await AsyncStorage.multiRemove(sensitiveKeys);
 }
 
-export async function saveSnapshot(userId: string, snapshot: AppSnapshot) {
-  await AsyncStorage.setItem(`${SNAPSHOT_PREFIX}/${userId}`, JSON.stringify(snapshot));
+export async function clearLocalUserData(userId: string) {
+  await AsyncStorage.multiRemove([
+    ...LEGACY_SNAPSHOT_KEYS,
+    `${SNAPSHOT_PREFIX}/${userId}`,
+    `${EVENT_NOTIFICATION_PREFIX}/${userId}`,
+  ]);
 }
 
 export async function loadEventNotificationMap(userId: string): Promise<EventNotificationMap> {
